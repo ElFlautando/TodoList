@@ -2,6 +2,8 @@
 #include <ctime>
 #include <array>
 
+#include "TodoStatus.h"
+
 class TodoItem
 {
 private:
@@ -15,6 +17,8 @@ public:
 
     std::time_t m_timestampCreation{};
     std::time_t m_timestampCompleted{};
+
+    TodoStatus status { TodoStatus::None};
 
     TodoItem() {}
 
