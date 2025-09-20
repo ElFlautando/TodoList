@@ -6,7 +6,8 @@ int main()
 {
 
     TodoItem t1{TodoItem("Title", "Comment")};
-    std::cout << "Date:" <<  timeToStr(t1.m_timestampCreation) << std::endl;
+    TodoItem t2{TodoItem("Title", "Comment")};
+    t2.m_timestampCreation += 86400;
 
     return 0;
 }
