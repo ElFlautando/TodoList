@@ -1,9 +1,11 @@
 #include <iostream>
-#include <format>
+#include <fmt/core.h>
 
 #include "Manager.h"
 #include "TodoItem.h"
 #include "utils.h"
+
+Manager::Manager(){};
 
 void Manager::createTodo(std::string title, std::string comment)
 {
@@ -13,8 +15,5 @@ void Manager::createTodo(std::string title, std::string comment)
 void Manager::printTodoItem(int index)
 {
     const TodoItem &item{todoItems.at(index)};
-    std::cout << std::format("Created: {} \n
-                             Title : {}\n Comment : {}\n ", 
-                             timeToStr(item.m_timestampCreation),
-                             item.m_title, item.n_comment);
+    fmt::print("Created: {} \n Title : {}\n Comment : {}\n ", timeToStr(item.m_timestampCreation), item.m_title, item.m_comment);
 }

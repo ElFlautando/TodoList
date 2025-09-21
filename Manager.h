@@ -1,8 +1,9 @@
+#pragma once
+
 #include <string>
 #include <vector>
 
 #include "TodoItem.h"
-#include "Manager.h"
 
 class Manager{
     private:
@@ -11,6 +12,8 @@ class Manager{
 
     public:
 
+    Manager();
+
     void createTodo(std::string title, std::string comment);
-    void Manager::printTodoItem(int index);
+    void printTodoItem(int index);
 };
