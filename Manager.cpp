@@ -1,9 +1,4 @@
-#include <iostream>
-#include <fmt/core.h>
-
 #include "Manager.h"
-#include "TodoItem.h"
-#include "utils.h"
 
 Manager::Manager(){};
 
