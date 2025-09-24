@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "TodoItem.h"
+#include "todo_item.h"
 #include "utils.h"
-#include "Manager.h"
+#include "manager.h"
 
 int main()
 {
