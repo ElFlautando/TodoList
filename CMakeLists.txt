@@ -15,5 +15,10 @@ FetchContent_MakeAvailable(fmt)
 
 add_executable(main main.cpp manager.cpp todo_item.cpp utils.cpp)
 
-
 target_link_libraries(main fmt::fmt)
+
+# SDL inclusion testing
+list(APPEND /usr/local)
+find_package(SLD3)
+add_executable(gui gui_init.cpp gui.cpp)
+target_link_libraries(gui PRIVATE SDL3)
