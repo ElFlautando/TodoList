@@ -22,7 +22,7 @@ target_link_libraries(main fmt::fmt)
 
 
 list(APPEND CMAKE_PREFIX_PATH /usr/local)
-find_package(SLD3 )
+find_package(SDL3 REQUIRED)
 
 set(IMGUI_PATH /home/lfs/Downloads/dearImgui)
 file(GLOB IMGUI_GLOB 
@@ -32,10 +32,10 @@ file(GLOB IMGUI_GLOB
 
 
 
-add_library(imgui STATIC ${IMGUI_GLOB} ${IMGUI_GLOB}/backends )
-target_include_directories(imgui PUBLIC IMGUI_PATH)
+add_library(imgui STATIC ${IMGUI_GLOB} ${IMGUI_PATH}/backends )
+target_include_directories(imgui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
 
 
 add_executable(gui gui_init.cpp gui.cpp)
 
-target_link_libraries(gui PRIVATE SDL3 imgui)
+target_link_libraries(gui PRIVATE SDL3::SDL3 imgui)
