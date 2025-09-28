@@ -9,6 +9,8 @@ GUI::GUI(){
     if( m_window == NULL){
         std::cerr << "Error opening window";
     }
+
+    m_renderer = SDL_CreateRenderer(m_window, NULL);
 }
 
 bool GUI::runGUI(){
@@ -17,6 +19,7 @@ bool GUI::runGUI(){
     bool appRunning {true};
 
     SDL_Event event{};
+    static int tick{1699};
 
     SDL_ShowWindow(m_window);
     while( appRunning){
@@ -32,6 +35,10 @@ bool GUI::runGUI(){
         default:
             break;
         }
+       
+        SDL_SetRenderDrawColor(m_renderer, 3*tick%255, 7*tick%255, 11*tick%255,  0xff);
+        SDL_RenderClear(m_renderer);
+        SDL_RenderPresent(m_renderer);
 
     }
     

@@ -8,9 +8,10 @@ class GUI
 {
 private:
     SDL_Window *m_window {NULL};
+    SDL_Renderer *m_renderer {NULL};
+
     int m_width{640};
     int m_height{360};
-
 public:
     GUI();
     bool runGUI();
