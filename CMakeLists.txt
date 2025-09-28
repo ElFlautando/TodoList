@@ -18,7 +18,24 @@ add_executable(main main.cpp manager.cpp todo_item.cpp utils.cpp)
 target_link_libraries(main fmt::fmt)
 
 # SDL inclusion testing
-list(APPEND /usr/local)
-find_package(SLD3)
+
+
+
+list(APPEND CMAKE_PREFIX_PATH /usr/local)
+find_package(SLD3 )
+
+set(IMGUI_PATH /home/lfs/Downloads/dearImgui)
+file(GLOB IMGUI_GLOB 
+  ${IMGUI_PATH}/*.cpp
+  ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
+  )
+
+
+
+add_library(imgui STATIC ${IMGUI_GLOB} ${IMGUI_GLOB}/backends )
+target_include_directories(imgui PUBLIC IMGUI_PATH)
+
+
 add_executable(gui gui_init.cpp gui.cpp)
-target_link_libraries(gui PRIVATE SDL3)
+
+target_link_libraries(gui PRIVATE SDL3 imgui)

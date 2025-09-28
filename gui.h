@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <SDL3/SDL.h>
+
 class GUI
 {
 private:
