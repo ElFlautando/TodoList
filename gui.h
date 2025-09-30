@@ -17,6 +17,12 @@ private:
 
     int m_width{640};
     int m_height{360};
+
+
+    void initImGui();
+    void updateImGui();
+    void cleanupImGui();
+
 public:
     GUI();
     bool runGUI();

@@ -5,14 +5,64 @@ GUI::GUI()
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    m_window = SDL_CreateWindow("TodoList", 640*2, 380*2, 0);
-    
+    m_window = SDL_CreateWindow("TodoList", 640 * 2, 380 * 2, 0);
+
     if (m_window == NULL)
     {
         std::cerr << "Error opening window";
     }
 
     m_renderer = SDL_CreateRenderer(m_window, NULL);
+
+    initImGui();
+}
+
+bool GUI::runGUI()
+{
+
+    bool appRunning{true};
+
+    SDL_Event event{};
+    static int tick{1699};
+
+    SDL_ShowWindow(m_window);
+    while (appRunning)
+    {
+        SDL_PollEvent(&event);
+        ImGui_ImplSDL3_ProcessEvent(&event);
+
+        switch (event.type)
+        {
+        case SDL_EVENT_QUIT:
+            appRunning = false;
+            return quitGUI();
+            break;
+
+        default:
+            break;
+        }
+        updateImGui();
+
+        SDL_SetRenderDrawColor(m_renderer, 3 * tick % 255, 7 * tick % 255, 11 * tick % 255, 0xff);
+        SDL_RenderClear(m_renderer);
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
+        SDL_RenderPresent(m_renderer);
+    }
+
+    return false;
+}
+
+bool GUI::quitGUI()
+{
+    cleanupImGui();
+
+    SDL_DestroyWindow(m_window);
+    SDL_Quit();
+    return true;
+}
+
+void GUI::initImGui()
+{
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -42,54 +92,22 @@ GUI::GUI()
     ImGui_ImplSDLRenderer3_Init(m_renderer);
 }
 
-bool GUI::runGUI()
+void GUI::updateImGui()
 {
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    ImGui::Begin("Test");
 
-    bool appRunning{true};
+    ImGui::Text("This is text");
 
-    SDL_Event event{};
-    static int tick{1699};
-
-    SDL_ShowWindow(m_window);
-    while (appRunning)
-    {
-        SDL_PollEvent(&event);
-        ImGui_ImplSDL3_ProcessEvent(&event);
-
-        switch (event.type)
-        {
-        case SDL_EVENT_QUIT:
-            appRunning = false;
-            return quitGUI();
-            break;
-
-        default:
-            break;
-        
-        }
-
-
-        ImGui_ImplSDLRenderer3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
-
-        ImGui::Render();
-
-
-        SDL_SetRenderDrawColor(m_renderer, 3 * tick % 255, 7 * tick % 255, 11 * tick % 255, 0xff);
-        SDL_RenderClear(m_renderer);
-        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
-        SDL_RenderPresent(m_renderer);
-    }
-
-    return false;
+    ImGui::End();
+    ImGui::Render();
 }
 
-bool GUI::quitGUI()
+void GUI::cleanupImGui()
 {
-
-    SDL_DestroyWindow(m_window);
-    SDL_Quit();
-    return true;
+    ImGui_ImplSDL3_Shutdown();
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui::DestroyContext();
 }
