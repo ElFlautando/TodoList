@@ -94,14 +94,81 @@ void GUI::initImGui()
 
 void GUI::updateImGui()
 {
+    static bool dirtyText{false};
+    static bool p_open{true};
+    ImGuiWindowFlags window_flags{0};
+
+    if (dirtyText)
+    {
+        window_flags |= ImGuiWindowFlags_UnsavedDocument;
+    }
+
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-    ImGui::Begin("Test");
 
-    ImGui::Text("This is text");
+    ImGui::Begin("Test", &p_open, window_flags);
+
+    static int selected{0};
+
+    ImGui::BeginChild("list", ImVec2{150, 0}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+    for (int i = 0; i < 15; i++)
+    {
+        char label[128];
+        sprintf(label, "Item %d", i);
+        if (ImGui::Selectable(label, selected == i, ImGuiSelectableFlags_SelectOnNav))
+        {
+            selected = i;
+        }
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+    ImGui::Text("Selected item: %d", selected);
+    ImGui::Separator();
+    if (ImGui::BeginTabBar("tabs", ImGuiTabBarFlags_None))
+    {
+        if (ImGui::BeginTabItem("Info"))
+        {
+            //TODO: Load text from selected item
+            ImGui::TextWrapped("Lorem ipsum");
+            ImGui::EndTabItem();
+        }
+        static ImGuiInputTextFlags textInputFlags{ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_ReadOnly};
+        if (ImGui::BeginTabItem("Edit"))
+        {
+
+            if (ImGui::Button("Edit"))
+            {
+                textInputFlags = textInputFlags & ~ImGuiInputTextFlags_ReadOnly;
+                dirtyText = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Save"))
+            {
+                textInputFlags |= ImGuiInputTextFlags_ReadOnly;
+                dirtyText = false;
+                //TODO: Call saving function
+                //TODO: Hide save button when not editing
+            }
+
+            static char textBuffer[1024 * 5];
+            ImGui::InputTextMultiline("Edit input", textBuffer, static_cast<size_t>(1024 * 5), ImVec2(-FLT_MIN, 0), textInputFlags);
+            ImGui::EndTabItem();
+        }
+        else
+        {
+            textInputFlags |= ImGuiInputTextFlags_ReadOnly;
+        }
+        ImGui::EndTabBar();
+    }
+    ImGui::EndChild();
+    ImGui::EndGroup();
 
     ImGui::End();
+    ImGui::ShowDemoWindow();
     ImGui::Render();
 }
 
