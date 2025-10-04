@@ -17,7 +17,7 @@ GUI::GUI()
     initImGui();
 }
 
-bool GUI::runGUI()
+bool GUI::runGUI(Manager &manager)
 {
 
     bool appRunning{true};
@@ -41,7 +41,7 @@ bool GUI::runGUI()
         default:
             break;
         }
-        updateImGui();
+        updateImGui(manager);
 
         SDL_SetRenderDrawColor(m_renderer, 3 * tick % 255, 7 * tick % 255, 11 * tick % 255, 0xff);
         SDL_RenderClear(m_renderer);
@@ -92,7 +92,7 @@ void GUI::initImGui()
     ImGui_ImplSDLRenderer3_Init(m_renderer);
 }
 
-void GUI::updateImGui()
+void GUI::updateImGui(Manager &manager)
 {
     static bool dirtyText{false};
     static bool p_open{true};
@@ -112,33 +112,44 @@ void GUI::updateImGui()
     static int selected{0};
 
     ImGui::BeginChild("list", ImVec2{150, 0}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
-    for (int i = 0; i < 15; i++)
+
+    for (int i{0}; i < std::size(manager.todoItems); i++)
     {
-        char label[128];
-        sprintf(label, "Item %d", i);
-        if (ImGui::Selectable(label, selected == i, ImGuiSelectableFlags_SelectOnNav))
+        const TodoItem &item{manager.todoItems.at(i)};
+
+        if (ImGui::Selectable(item.m_title.c_str(), selected == i, ImGuiSelectableFlags_SelectOnNav))
         {
             selected = i;
         }
     }
+
     ImGui::EndChild();
     ImGui::SameLine();
 
     ImGui::BeginGroup();
     ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-    ImGui::Text("Selected item: %d", selected);
+
+    TodoItem &selectedItem{manager.todoItems.at(selected)};
+
+    ImGui::Text("Todo: %s", selectedItem.m_title.c_str());
+
     ImGui::Separator();
+
     if (ImGui::BeginTabBar("tabs", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("Info"))
         {
-            //TODO: Load text from selected item
-            ImGui::TextWrapped("Lorem ipsum");
+            // TODO: Load text from selected item
+            ImGui::TextWrapped(selectedItem.m_comment.c_str());
             ImGui::EndTabItem();
         }
         static ImGuiInputTextFlags textInputFlags{ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_ReadOnly};
         if (ImGui::BeginTabItem("Edit"))
         {
+            static char buffer[1024 * 16]; // TODO: dynamic resizable buffer with  callbackresize
+            strncpy(buffer, selectedItem.m_comment.c_str(), sizeof(buffer));
+            buffer[sizeof(buffer) - 1] = 0;
+
 
             if (ImGui::Button("Edit"))
             {
@@ -146,16 +157,18 @@ void GUI::updateImGui()
                 dirtyText = true;
             }
             ImGui::SameLine();
-            if (ImGui::Button("Save"))
+            if (dirtyText)
             {
-                textInputFlags |= ImGuiInputTextFlags_ReadOnly;
-                dirtyText = false;
-                //TODO: Call saving function
-                //TODO: Hide save button when not editing
+                if (dirtyText && ImGui::Button("Save"))
+                {
+                    textInputFlags |= ImGuiInputTextFlags_ReadOnly;
+                    dirtyText = false;
+                    // TODO: Call saving function
+                    // TODO: Hide save button when not editing
+                }
             }
 
-            static char textBuffer[1024 * 5];
-            ImGui::InputTextMultiline("Edit input", textBuffer, static_cast<size_t>(1024 * 5), ImVec2(-FLT_MIN, 0), textInputFlags);
+            ImGui::InputTextMultiline("Edit input", buffer, static_cast<size_t>(1024 * 5), ImVec2(-FLT_MIN, 0), textInputFlags);
             ImGui::EndTabItem();
         }
         else

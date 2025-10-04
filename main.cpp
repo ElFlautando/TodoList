@@ -10,15 +10,15 @@ int main()
 {
     Manager m;
 
-    m.createTodo("Tittle 1", "com 1");
-    m.createTodo("Tittle 2", "com 2");
-    m.createTodo("Tittle 3", "com 3");
+    m.createTodo("Title 1", "com 1");
+    m.createTodo("Title 2", "com 2");
+    m.createTodo("Title 3", "com 3");
 
     m.printTodoItem(2);
 
 
     GUI gui { GUI()};
-    gui.runGUI();
+    gui.runGUI(m);
 
     return 0;
 }
