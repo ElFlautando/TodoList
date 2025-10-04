@@ -26,9 +26,12 @@ file(GLOB IMGUI_GLOB
 #message(${IMGUI_PATH})
 #message(${IMGUI_GLOB})
 
+add_library(core STATIC manager.cpp todo_item.cpp utils.cpp)
+target_link_libraries(core PUBLIC fmt::fmt )
+
 add_library(gui STATIC ${IMGUI_GLOB} gui.cpp)
 target_include_directories(gui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
-target_link_libraries(gui PRIVATE SDL3::SDL3 )
+target_link_libraries(gui PRIVATE SDL3::SDL3 core )
 
-add_executable(main main.cpp manager.cpp todo_item.cpp utils.cpp)
-target_link_libraries(main PRIVATE fmt::fmt gui)
+add_executable(main main.cpp)
+target_link_libraries(main core gui)
