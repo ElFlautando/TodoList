@@ -4,6 +4,8 @@
 #include "utils.h"
 #include "manager.h"
 
+#include "gui.h"
+
 int main()
 {
     Manager m;
@@ -12,12 +14,11 @@ int main()
     m.createTodo("Tittle 2", "com 2");
     m.createTodo("Tittle 3", "com 3");
 
-    //TodoItem t1{TodoItem("Title", "Comment")};
-    //TodoItem t2{TodoItem("Title", "Comment")};
-    //t2.m_timestampCreation += 86400;
-
-    m.printTodoItem(0);
     m.printTodoItem(2);
+
+
+    GUI gui { GUI()};
+    gui.runGUI();
 
     return 0;
 }

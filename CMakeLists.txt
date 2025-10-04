@@ -13,15 +13,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 #end fmt
 
-
-add_executable(main main.cpp manager.cpp todo_item.cpp utils.cpp)
-
-target_link_libraries(main fmt::fmt)
-
-# SDL inclusion testing
-
-
-
 list(APPEND CMAKE_PREFIX_PATH /usr/local)
 find_package(SDL3 REQUIRED)
 
@@ -30,15 +21,14 @@ file(GLOB IMGUI_GLOB
   ${IMGUI_PATH}/*.cpp
   ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
   ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
-  )
+)
 
-message(${IMGUI_PATH})
-message(${IMGUI_GLOB})
+#message(${IMGUI_PATH})
+#message(${IMGUI_GLOB})
 
-add_library(imgui STATIC ${IMGUI_GLOB} )
-target_include_directories(imgui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
+add_library(gui STATIC ${IMGUI_GLOB} gui.cpp)
+target_include_directories(gui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
+target_link_libraries(gui PRIVATE SDL3::SDL3 )
 
-
-add_executable(gui gui_init.cpp gui.cpp)
-
-target_link_libraries(gui PRIVATE SDL3::SDL3 imgui)
+add_executable(main main.cpp manager.cpp todo_item.cpp utils.cpp)
+target_link_libraries(main PRIVATE fmt::fmt gui)
