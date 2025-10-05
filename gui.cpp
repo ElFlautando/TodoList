@@ -95,11 +95,10 @@ void GUI::initImGui()
 
 void GUI::updateImGui()
 {
-    static bool dirtyText{false};
     static bool p_open{true};
     ImGuiWindowFlags window_flags{0};
 
-    if (dirtyText)
+    if (m_dirtyState)
     {
         window_flags |= ImGuiWindowFlags_UnsavedDocument;
     }
@@ -145,6 +144,7 @@ void GUI::renderSelection()
         if (ImGui::Selectable(item.m_title.c_str(), m_selected == i, ImGuiSelectableFlags_SelectOnNav))
         {
             m_selected = i;
+            m_reselectedItem = true;
         }
     }
 
@@ -164,29 +164,53 @@ void GUI::renderInfo()
 
     ImGui::Separator();
 
+    renderTextField(selectedItem);
+    ImGui::EndChild();
+}
+//TODO: allow title editing
+void GUI::renderTextField(TodoItem &selectedItem)
+{
     static char buffer[1024 * 16]; // TODO: dynamic resizable buffer with  callbackresize
 
-    strncpy(buffer, selectedItem.m_comment.c_str(), sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = 0;
+    if (m_reselectedItem)
+    {
+        strncpy(buffer, selectedItem.m_comment.c_str(), sizeof(buffer));
+        buffer[sizeof(buffer) - 1] = 0;
 
-    ImGuiInputTextFlags textInputFlags{ ImGuiInputTextFlags_ReadOnly};
-    if (ImGui::Button("Edit"))
-    {
-        textInputFlags = textInputFlags & ~ImGuiInputTextFlags_ReadOnly;
-        m_dirtyState = true;
+        m_reselectedItem = false;
     }
-    ImGui::SameLine();
-    if (m_dirtyState)  
+
+    static ImGuiInputTextFlags textInputFlags{ImGuiInputTextFlags_ReadOnly};
+
+    if (m_selectionListEnabled)
     {
-        if (m_dirtyState && ImGui::Button("Save"))
+        if (ImGui::Button("Edit"))
+        {
+            textInputFlags = textInputFlags & ~ImGuiInputTextFlags_ReadOnly;
+            m_dirtyState = true;
+            m_selectionListEnabled = false;
+        }
+    }
+    else
+    {
+        if (ImGui::Button("Cancel"))
         {
             textInputFlags |= ImGuiInputTextFlags_ReadOnly;
-            m_dirtyState = false;
-            // TODO: Call saving function
-            // TODO: Hide save button when not editing
+            m_selectionListEnabled = true;
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (!m_selectionListEnabled)
+    {
+        if (ImGui::Button("Save"))
+        {
+            textInputFlags |= ImGuiInputTextFlags_ReadOnly;
+            m_selectionListEnabled = true;
+            selectedItem.m_comment = std::string{buffer};
         }
     }
 
     ImGui::InputTextMultiline("Edit input", buffer, static_cast<size_t>(1024 * 5), ImVec2(-FLT_MIN, 0), textInputFlags);
-    ImGui::EndChild();
 }

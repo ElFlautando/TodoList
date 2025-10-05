@@ -24,6 +24,8 @@ private:
     Manager &m_manager;
 
     bool m_dirtyState{false};
+    bool m_selectionListEnabled{true};
+    bool m_reselectedItem{true};
     int m_selected{0};
 
     void initImGui();
@@ -33,6 +35,7 @@ private:
     void renderMenuBar();
     void renderSelection();
     void renderInfo();
+    void renderTextField(TodoItem& selectedItem);
 
 public:
     GUI() = delete;
