@@ -17,8 +17,8 @@ int main()
     m.printTodoItem(2);
 
 
-    GUI gui { GUI()};
-    gui.runGUI(m);
+    GUI gui { GUI(m)};
+    gui.runGUI();
 
     return 0;
 }

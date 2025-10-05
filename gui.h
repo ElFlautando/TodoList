@@ -12,24 +12,32 @@
 #include "manager.h"
 #include "utils.h"
 
-
 class GUI
 {
 private:
-    SDL_Window *m_window {NULL};
-    SDL_Renderer *m_renderer {NULL};
-    
+    SDL_Window *m_window{NULL};
+    SDL_Renderer *m_renderer{NULL};
 
     int m_width{640};
     int m_height{360};
 
+    Manager &m_manager;
+
+    bool m_dirtyState{false};
+    int m_selected{0};
 
     void initImGui();
-    void updateImGui(Manager& manager);
+    void updateImGui();
     void cleanupImGui();
 
+    void renderMenuBar();
+    void renderSelection();
+    void renderInfo();
+
 public:
-    GUI();
-    bool runGUI(Manager& manager);
+    GUI() = delete;
+    GUI(Manager& manager);
+
+    bool runGUI();
     bool quitGUI();
 };

@@ -1,6 +1,7 @@
 #include "gui.h"
 
-GUI::GUI()
+GUI::GUI(Manager &manager)
+    : m_manager{manager}
 {
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -17,7 +18,7 @@ GUI::GUI()
     initImGui();
 }
 
-bool GUI::runGUI(Manager &manager)
+bool GUI::runGUI()
 {
 
     bool appRunning{true};
@@ -41,7 +42,7 @@ bool GUI::runGUI(Manager &manager)
         default:
             break;
         }
-        updateImGui(manager);
+        updateImGui();
 
         SDL_SetRenderDrawColor(m_renderer, 3 * tick % 255, 7 * tick % 255, 11 * tick % 255, 0xff);
         SDL_RenderClear(m_renderer);
@@ -92,7 +93,7 @@ void GUI::initImGui()
     ImGui_ImplSDLRenderer3_Init(m_renderer);
 }
 
-void GUI::updateImGui(Manager &manager)
+void GUI::updateImGui()
 {
     static bool dirtyText{false};
     static bool p_open{true};
@@ -110,77 +111,11 @@ void GUI::updateImGui(Manager &manager)
     ImGui::Begin("Test", &p_open, window_flags);
 
     static int selected{0};
+    renderSelection();
 
-    ImGui::BeginChild("list", ImVec2{150, 0}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
-
-    for (int i{0}; i < std::size(manager.todoItems); i++)
-    {
-        const TodoItem &item{manager.todoItems.at(i)};
-
-        if (ImGui::Selectable(item.m_title.c_str(), selected == i, ImGuiSelectableFlags_SelectOnNav))
-        {
-            selected = i;
-        }
-    }
-
-    ImGui::EndChild();
     ImGui::SameLine();
 
-    ImGui::BeginGroup();
-    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-
-    TodoItem &selectedItem{manager.todoItems.at(selected)};
-
-    ImGui::Text("Todo: %s", selectedItem.m_title.c_str());
-    const char* timestampCreation{ timeToStr(selectedItem.m_timestampCreation)};
-    ImGui::Text("Created: %s", timestampCreation);
-
-    ImGui::Separator();
-
-    if (ImGui::BeginTabBar("tabs", ImGuiTabBarFlags_None))
-    {
-        if (ImGui::BeginTabItem("Info"))
-        {
-            // TODO: Load text from selected item
-            ImGui::TextWrapped(selectedItem.m_comment.c_str());
-            ImGui::EndTabItem();
-        }
-        static ImGuiInputTextFlags textInputFlags{ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_ReadOnly};
-        if (ImGui::BeginTabItem("Edit"))
-        {
-            static char buffer[1024 * 16]; // TODO: dynamic resizable buffer with  callbackresize
-            strncpy(buffer, selectedItem.m_comment.c_str(), sizeof(buffer));
-            buffer[sizeof(buffer) - 1] = 0;
-
-
-            if (ImGui::Button("Edit"))
-            {
-                textInputFlags = textInputFlags & ~ImGuiInputTextFlags_ReadOnly;
-                dirtyText = true;
-            }
-            ImGui::SameLine();
-            if (dirtyText)
-            {
-                if (dirtyText && ImGui::Button("Save"))
-                {
-                    textInputFlags |= ImGuiInputTextFlags_ReadOnly;
-                    dirtyText = false;
-                    // TODO: Call saving function
-                    // TODO: Hide save button when not editing
-                }
-            }
-
-            ImGui::InputTextMultiline("Edit input", buffer, static_cast<size_t>(1024 * 5), ImVec2(-FLT_MIN, 0), textInputFlags);
-            ImGui::EndTabItem();
-        }
-        else
-        {
-            textInputFlags |= ImGuiInputTextFlags_ReadOnly;
-        }
-        ImGui::EndTabBar();
-    }
-    ImGui::EndChild();
-    ImGui::EndGroup();
+    renderInfo();
 
     ImGui::End();
     ImGui::ShowDemoWindow();
@@ -192,4 +127,66 @@ void GUI::cleanupImGui()
     ImGui_ImplSDL3_Shutdown();
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui::DestroyContext();
+}
+
+void GUI::renderMenuBar()
+{
+}
+
+void GUI::renderSelection()
+{
+
+    ImGui::BeginChild("list", ImVec2{150, 0}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+
+    for (int i{0}; i < std::size(m_manager.todoItems); i++)
+    {
+        const TodoItem &item{m_manager.todoItems.at(i)};
+
+        if (ImGui::Selectable(item.m_title.c_str(), m_selected == i, ImGuiSelectableFlags_SelectOnNav))
+        {
+            m_selected = i;
+        }
+    }
+
+    ImGui::EndChild();
+}
+
+void GUI::renderInfo()
+{
+
+    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+
+    TodoItem &selectedItem{m_manager.todoItems.at(m_selected)};
+
+    ImGui::Text("Todo: %s", selectedItem.m_title.c_str());
+    const char *timestampCreation{timeToStr(selectedItem.m_timestampCreation)};
+    ImGui::Text("Created: %s", timestampCreation);
+
+    ImGui::Separator();
+
+    static char buffer[1024 * 16]; // TODO: dynamic resizable buffer with  callbackresize
+
+    strncpy(buffer, selectedItem.m_comment.c_str(), sizeof(buffer));
+    buffer[sizeof(buffer) - 1] = 0;
+
+    ImGuiInputTextFlags textInputFlags{ ImGuiInputTextFlags_ReadOnly};
+    if (ImGui::Button("Edit"))
+    {
+        textInputFlags = textInputFlags & ~ImGuiInputTextFlags_ReadOnly;
+        m_dirtyState = true;
+    }
+    ImGui::SameLine();
+    if (m_dirtyState)  
+    {
+        if (m_dirtyState && ImGui::Button("Save"))
+        {
+            textInputFlags |= ImGuiInputTextFlags_ReadOnly;
+            m_dirtyState = false;
+            // TODO: Call saving function
+            // TODO: Hide save button when not editing
+        }
+    }
+
+    ImGui::InputTextMultiline("Edit input", buffer, static_cast<size_t>(1024 * 5), ImVec2(-FLT_MIN, 0), textInputFlags);
+    ImGui::EndChild();
 }
