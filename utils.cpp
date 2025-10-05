@@ -1,12 +1,14 @@
 #include "utils.h"
 
 
-std::string_view timeToStr(const std::time_t time)
+const char* timeToStr(const std::time_t time)
 {
     std::tm localTime{*std::localtime(&time)};
 
-    static std::array<char, 11> buffer;
-    std::strftime(buffer.data(), buffer.size(), "%d/%m/%Y", &localTime);
+    constexpr size_t dateStrLen {11};
+    //static std::array<char, 11> buffer;
+    static  char buffer[dateStrLen];
+    std::strftime(buffer, dateStrLen, "%d/%m/%Y", &localTime);
 
-    return std::string_view{buffer.data()};
+    return buffer;
 }

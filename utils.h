@@ -4,4 +4,4 @@
 #include <string>
 #include <array>
 
-std::string_view timeToStr(const std::time_t time);
+const char* timeToStr(const std::time_t time);

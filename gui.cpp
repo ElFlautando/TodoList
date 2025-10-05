@@ -132,6 +132,8 @@ void GUI::updateImGui(Manager &manager)
     TodoItem &selectedItem{manager.todoItems.at(selected)};
 
     ImGui::Text("Todo: %s", selectedItem.m_title.c_str());
+    const char* timestampCreation{ timeToStr(selectedItem.m_timestampCreation)};
+    ImGui::Text("Created: %s", timestampCreation);
 
     ImGui::Separator();
 

@@ -10,6 +10,7 @@
 #include <imgui_impl_sdlrenderer3.h>
 
 #include "manager.h"
+#include "utils.h"
 
 
 class GUI
