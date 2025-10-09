@@ -110,7 +110,10 @@ void GUI::updateImGui()
     ImGui::Begin("Test", &p_open, window_flags);
 
     static int selected{0};
+
+    ImGui::BeginDisabled(!m_selectionListEnabled);
     renderSelection();
+    ImGui::EndDisabled();
 
     ImGui::SameLine();
 
@@ -134,7 +137,6 @@ void GUI::renderMenuBar()
 
 void GUI::renderSelection()
 {
-
     ImGui::BeginChild("list", ImVec2{150, 0}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
 
     for (int i{0}; i < std::size(m_manager.todoItems); i++)
